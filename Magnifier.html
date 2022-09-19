@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <style>
+        #canvas {
+            border: 1px black solid;
+            position: absolute;
+            left: 50%;
+            top: 50%;
+            transform: translate(-50%, -50%);
+        }
+    </style>
+</head>
+
+<body>
+    <canvas id="canvas" width="1536" height="864">
+        您的浏览器版本过低,请更新到最新版本
+    </canvas>
+    <script>
+        const canvas = document.querySelector('#canvas');
+        const cxt = canvas.getContext('2d');
+        const img = new Image();
+        img.src = './image/1.jpg';
+        const width = canvas.width;
+        const height = canvas.height;
+        const scale = 2.5;//缩放比例
+        //加载完成后调用,完成初次渲染
+        img.onload = function () {
+            //原文件是一个3840*2160
+            //这里进行2.5的缩放
+            //这个缩放比例将于下方反复使用
+            cxt.drawImage(img, 0, 0, 1536, 864)
+        }
+        //绘画函数
+        function draw(e) {
+           //页面宽度是会变化的,会影响后续的计算结果,放在函数里面获取
+           //外部宽高
+            let w_width = window.innerWidth
+            let w_height = window.innerHeight
+            //算出偏移量
+            let offsetX = (w_width - width) / 2;
+            let offsetY = (w_height - height) / 2;
+            //获取我们点击的坐标
+            let orginX = e.clientX - offsetX;
+            let orginY = e.clientY - offsetY;
+            cxt.beginPath()
+            cxt.moveTo(orginX, orginY)
+            cxt.clearRect(0, 0, width, height)
+            cxt.drawImage(img, 0, 0, 1536, 864)
+            //设置区域
+            let areaX = 40
+            let areaY = 40
+            //考虑缩放比例进行截取的计算
+            cxt.drawImage(img, scale * (orginX - areaX), scale * orginY - areaY, 2 * scale * areaX, 2 * scale * areaY, orginX - 2 * areaX, orginY - 2 * areaY, 4 * areaX, 4 * areaY)
+        }
+        //绑定事件
+        canvas.addEventListener('mousedown', function (e) {
+            document.addEventListener('mousemove', draw)
+        })
+        //移除事件绑定
+        canvas.addEventListener('mouseup', function () {
+            document.removeEventListener('mousemove', draw)
+            cxt.drawImage(img, 0, 0, 1536, 864)
+        })
+
+
+
+    </script>
+</body>
+
+</html>
